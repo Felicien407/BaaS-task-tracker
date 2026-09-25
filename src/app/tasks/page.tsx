@@ -1,50 +1,60 @@
-import type { Task } from "@/types/task";
-import TaskCard from "@/components/TaskCard";
+"use client";
 
-// Static placeholder data for Day 1. Replaced by Firestore reads on Day 3.
-const MOCK_TASKS: Task[] = [
-  {
-    id: "1",
-    title: "Set up local dev environment",
-    description: "Node, Git, VS Code extensions.",
-    status: "completed",
-    createdAt: new Date("2026-09-21"),
-  },
-  {
-    id: "2",
-    title: "Scaffold Next.js app",
-    description: "App Router, TypeScript, Tailwind.",
-    status: "completed",
-    createdAt: new Date("2026-09-21"),
-  },
-  {
-    id: "3",
-    title: "Wire up Firebase Auth",
-    description: "Email/password and Google sign-in.",
-    status: "in_progress",
-    createdAt: new Date("2026-09-22"),
-  },
-  {
-    id: "4",
-    title: "Connect Firestore CRUD",
-    description: "Create and read task documents.",
-    status: "todo",
-    createdAt: new Date("2026-09-22"),
-  },
-];
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/context/AuthContext";
+import TaskForm from "@/components/TaskForm";
+import TaskCard from "@/components/TaskCard";
+import { Task } from "@/types/task";
 
 export default function TasksPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  // Route guard: bounce unauthenticated users to /login once we know
+  // for sure they're not logged in (loading === false, user === null).
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading, router]);
+
+  // Real-time subscription: onSnapshot fires immediately with the current
+  // data, then again on every future change — no manual refetching needed.
+  useEffect(() => {
+    if (!user) return;
+
+    const q = query(collection(db, "tasks"), where("ownerId", "==", user.uid));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const next = snapshot.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      })) as Task[];
+      setTasks(next);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  if (loading || !user) {
+    return <p className="p-6">Loading…</p>;
+  }
+
   return (
-    <section>
-      <div className="flex items-baseline justify-between">
-        <h1 className="text-xl font-semibold tracking-tight">Tasks</h1>
-        <span className="text-sm text-neutral-500">{MOCK_TASKS.length} total</span>
-      </div>
-      <ul className="mt-6">
-        {MOCK_TASKS.map((task) => (
+    <main className="mx-auto flex max-w-lg flex-col gap-6 px-4 py-8">
+      <h1 className="text-2xl font-semibold">Your tasks</h1>
+      <TaskForm />
+      <ul className="flex flex-col gap-2">
+        {tasks.length === 0 && (
+          <p className="text-sm text-gray-500">No tasks yet — add one above.</p>
+        )}
+        {tasks.map((task) => (
           <TaskCard key={task.id} task={task} />
         ))}
       </ul>
-    </section>
+    </main>
   );
 }
