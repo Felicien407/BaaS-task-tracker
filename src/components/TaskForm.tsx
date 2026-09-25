@@ -34,26 +34,30 @@ export default function TaskForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2 rounded border p-4">
+    <form onSubmit={handleSubmit} className="rounded-2xl border border-[#e7e7ef] bg-white p-5 shadow-sm">
+      <div className="mb-4">
+        <p className="font-bold text-[#191a2b]">Add a new task</p>
+        <p className="mt-1 text-sm text-[#6f7182]">What would make today feel successful?</p>
+      </div>
       <input
         type="text"
         placeholder="Task title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         required
-        className="rounded border px-3 py-2"
+        className="w-full rounded-xl border border-[#e7e7ef] bg-[#fafaff] px-4 py-3 outline-none transition placeholder:text-[#a2a3b0] focus:border-[#5b4bdb] focus:ring-4 focus:ring-indigo-100"
       />
       <textarea
         placeholder="Description (optional)"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        className="rounded border px-3 py-2"
+        className="w-full rounded-xl border border-[#e7e7ef] bg-[#fafaff] px-4 py-3 outline-none transition placeholder:text-[#a2a3b0] focus:border-[#5b4bdb] focus:ring-4 focus:ring-indigo-100"
         rows={2}
       />
       <button
         type="submit"
         disabled={submitting}
-        className="self-start rounded bg-black px-3 py-2 text-white disabled:opacity-50"
+        className="mt-2 self-start rounded-xl bg-[#191a2b] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#302f48] disabled:cursor-not-allowed disabled:opacity-50"
       >
         {submitting ? "Adding…" : "Add task"}
       </button>

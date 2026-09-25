@@ -16,11 +16,12 @@ const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Only connect to emulators once, and only in dev.
-// Next.js hot-reloads this module repeatedly, so without the guard you'll
-// get "already connected to emulator" errors on every save.
+// Emulators remain the default for local development. Set
+// NEXT_PUBLIC_FIREBASE_USE_EMULATORS=false to use the configured Firebase
+// project instead.
 if (
   process.env.NODE_ENV === "development" &&
+  process.env.NEXT_PUBLIC_FIREBASE_USE_EMULATORS !== "false" &&
   !(globalThis as any)._firebaseEmulatorsConnected
 ) {
   connectAuthEmulator(auth, "http://127.0.0.1:9099");

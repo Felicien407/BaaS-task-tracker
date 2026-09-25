@@ -8,6 +8,8 @@ import { useAuth } from "@/context/AuthContext";
 import TaskForm from "@/components/TaskForm";
 import TaskCard from "@/components/TaskCard";
 import { Task } from "@/types/task";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 export default function TasksPage() {
   const { user, loading } = useAuth();
@@ -40,16 +42,33 @@ export default function TasksPage() {
   }, [user]);
 
   if (loading || !user) {
-    return <p className="p-6">Loading…</p>;
+    return <main className="flex min-h-screen items-center justify-center text-sm text-[#6f7182]">Loading your workspace…</main>;
   }
 
   return (
-    <main className="mx-auto flex max-w-lg flex-col gap-6 px-4 py-8">
-      <h1 className="text-2xl font-semibold">Your tasks</h1>
+    <main className="mx-auto min-h-screen max-w-3xl px-5 py-8 sm:px-8">
+      <header className="mb-10 flex items-center justify-between">
+        <div className="flex items-center gap-3 text-sm font-bold tracking-tight">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ff8066] text-lg text-[#191a2b]">✓</span>
+          Taskflow
+        </div>
+        <button onClick={() => signOut(auth)} className="rounded-lg px-3 py-2 text-sm font-semibold text-[#6f7182] transition hover:bg-white hover:text-[#191a2b]">
+          Sign out
+        </button>
+      </header>
+      <div className="mb-8">
+        <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-[#5b4bdb]">Your workspace</p>
+        <h1 className="text-4xl font-bold tracking-tight text-[#191a2b]">Good to see you.</h1>
+        <p className="mt-2 text-[#6f7182]">{tasks.length ? `${tasks.length} ${tasks.length === 1 ? "task" : "tasks"} in your list` : "Start with one small, meaningful step."}</p>
+      </div>
       <TaskForm />
-      <ul className="flex flex-col gap-2">
+      <ul className="mt-2 flex flex-col gap-3">
         {tasks.length === 0 && (
-          <p className="text-sm text-gray-500">No tasks yet — add one above.</p>
+          <div className="rounded-2xl border border-dashed border-[#d7d6e4] bg-white/60 px-6 py-10 text-center">
+            <p className="text-2xl">✦</p>
+            <p className="mt-3 font-semibold text-[#454657]">Your list is clear</p>
+            <p className="mt-1 text-sm text-[#6f7182]">Add a task above and make some progress.</p>
+          </div>
         )}
         {tasks.map((task) => (
           <TaskCard key={task.id} task={task} />

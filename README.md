@@ -44,6 +44,26 @@ Create a .env.local file in the root directory and add your Firebase configurati
   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
   NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 ```
+
+By default, development uses the local Auth and Firestore emulators. To run
+the development server against your Firebase project in the cloud, add this
+variable to `.env.local`:
+
+```env
+NEXT_PUBLIC_FIREBASE_USE_EMULATORS=false
+```
+
+Then start the app normally:
+
+```bash
+npm run dev
+```
+
+This uses the Firebase project identified by `NEXT_PUBLIC_FIREBASE_PROJECT_ID`,
+so make sure Email/Password authentication is enabled in Firebase Console and
+that your Firestore security rules are deployed. Cloud data is real and
+persists between runs.
+
 4. **Run the development server:**
 
 ```bash
